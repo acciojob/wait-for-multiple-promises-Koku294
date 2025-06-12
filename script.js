@@ -1,53 +1,56 @@
-const output = document.getElementById("output");
+<script>
+  const output = document.getElementById("output");
 
-    // Function to simulate a promise with a random delay between 1 and 3 seconds
-    function createTimedPromise(index) {
-      const delay = Math.random() * 2 + 1; // Between 1 and 3 seconds
-      return new Promise((resolve) => {
-        const start = performance.now();
-        setTimeout(() => {
-          const end = performance.now();
-          const duration = (end - start) / 1000; // seconds
-          resolve({ name: `Promise ${index + 1}`, time: duration });
-        }, delay * 1000);
-      });
-    }
+  // Function that returns a Promise resolving after 1–3 seconds
+  function createTimedPromise(index) {
+    const delay = Math.random() * 2 + 1; // 1 to 3 seconds
+    return new Promise((resolve) => {
+      const start = performance.now();
+      setTimeout(() => {
+        const end = performance.now();
+        const duration = (end - start) / 1000;
+        resolve({ name: `Promise ${index + 1}`, time: duration });
+      }, delay * 1000);
+    });
+  }
 
-    async function trackPromises() {
-      const startTime = performance.now();
+  async function trackPromises() {
+    // Clear any existing rows and show loading
+    output.innerHTML = `<tr id="loading"><td colspan="2">Loading...</td></tr>`;
 
-      const promises = [
-        createTimedPromise(0),
-        createTimedPromise(1),
-        createTimedPromise(2),
-      ];
+    const startTime = performance.now();
 
-      const results = await Promise.all(promises);
+    const promises = [
+      createTimedPromise(0),
+      createTimedPromise(1),
+      createTimedPromise(2),
+    ];
 
-      const endTime = performance.now();
-      const totalTime = (endTime - startTime) / 1000;
+    const results = await Promise.all(promises);
+    const totalTime = (performance.now() - startTime) / 1000;
 
-      // Clear loading row
-      output.innerHTML = "";
+    // Remove "Loading..."
+    output.innerHTML = "";
 
-      // Add each promise result row
-      results.forEach((result, i) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${result.name}</td>
-          <td>${result.time.toFixed(3)}</td>
-        `;
-        output.appendChild(row);
-      });
-
-      // Add total row
-      const totalRow = document.createElement("tr");
-      totalRow.innerHTML = `
-        <td><strong>Total</strong></td>
-        <td><strong>${totalTime.toFixed(3)}</strong></td>
+    // Add each promise's result row
+    results.forEach((result) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${result.name}</td>
+        <td>${result.time.toFixed(3)}</td>
       `;
-      output.appendChild(totalRow);
-    }
+      output.appendChild(row);
+    });
 
-    // Start tracking
-    trackPromises();
+    // Add final "Total" row
+    const totalRow = document.createElement("tr");
+    totalRow.innerHTML = `
+      <td>Total</td>
+      <td>${totalTime.toFixed(3)}</td>
+    `;
+    output.appendChild(totalRow);
+  }
+
+  // Call the function when the page loads
+  window.onload = trackPromises;
+</script>
